@@ -104,7 +104,7 @@ export default function Scan({ onResult, onBack }) {
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '64px', marginBottom: '16px' }}>🍽️</div>
                 <p style={{ color: '#555', fontSize: '16px', fontWeight: 600 }}>Take or upload a photo</p>
-                <p style={{ color: '#333', fontSize: '13px', marginTop: '6px' }}>Indian, American, any cuisine</p>
+                <p style={{ color: '#333', fontSize: '13px', marginTop: '6px' }}>30+ world cuisines recognized</p>
               </div>
             )
           }

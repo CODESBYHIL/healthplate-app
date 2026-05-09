@@ -27,7 +27,7 @@ export default function Log({ meals, onBack, onClear }) {
           </div>
         </div>
         {meals.length > 0 && (
-          <button onClick={onClear} style={{
+          <button onClick={() => { if (window.confirm('Clear all meals? This cannot be undone.')) onClear() }} style={{
             background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)',
             borderRadius: '10px', padding: '8px 14px', color: '#ef4444',
             cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600,

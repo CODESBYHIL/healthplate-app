@@ -245,7 +245,7 @@ app.post('/analyze', upload.single('image'), async (req, res) => {
 app.get('/health', (_, res) => res.json({ status: 'ok' }))
 
 app.use(express.static(join(__dirname, '../client/dist')))
-app.get('*', (_, res) => res.sendFile(join(__dirname, '../client/dist/index.html')))
+app.get('/{*path}', (_, res) => res.sendFile(join(__dirname, '../client/dist/index.html')))
 
 const PORT = process.env.PORT || 3001
 app.listen(PORT, '0.0.0.0', () => console.log(`HealthPlate server on http://0.0.0.0:${PORT}`))

@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: healthplate
+    runtime: node
+    buildCommand: cd client && npm install && npm run build && cd ../server && npm install
+    startCommand: cd server && node index.js
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: NODE_VERSION
+        value: 20

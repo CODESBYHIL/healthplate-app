@@ -6,10 +6,8 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     proxy: {
-      '/analyze': {
-        target: 'http://localhost:3001',
-        changeOrigin: true,
-      }
+      '/analyze': { target: 'http://localhost:3001', changeOrigin: true },
+      '/chat':    { target: 'http://localhost:3001', changeOrigin: true }
     }
   }
 })

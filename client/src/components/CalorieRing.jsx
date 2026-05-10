@@ -1,47 +1,57 @@
 export default function CalorieRing({ consumed, goal = 1800 }) {
   const pct = Math.min(consumed / goal, 1)
-  const r = 72
+  const r = 70
   const circ = 2 * Math.PI * r
-  const color = pct > 1 ? '#ef4444' : pct > 0.85 ? '#f59e0b' : '#818cf8'
+  const color = pct > 1 ? '#f43f5e' : pct > 0.85 ? '#f59e0b' : '#f43f5e'
   const remaining = Math.max(0, goal - consumed)
+  const overBudget = consumed > goal
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-      <div style={{ position: 'relative', width: 176, height: 176, flexShrink: 0 }}>
-        <svg width="176" height="176" style={{ transform: 'rotate(-90deg)' }}>
-          <circle cx="88" cy="88" r={r} fill="none" stroke="#1a1a1a" strokeWidth="10" />
+    <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
+      <div style={{ position: 'relative', width: 172, height: 172, flexShrink: 0 }}>
+        <svg width="172" height="172" style={{ transform: 'rotate(-90deg)' }}>
+          <circle cx="86" cy="86" r={r} fill="none" stroke="#201d20" strokeWidth="9" />
           <circle
-            cx="88" cy="88" r={r} fill="none"
-            stroke={color} strokeWidth="10"
+            cx="86" cy="86" r={r} fill="none"
+            stroke={color} strokeWidth="9"
             strokeDasharray={`${pct * circ} ${circ}`}
             strokeLinecap="round"
-            style={{ transition: 'stroke-dasharray 0.8s ease, stroke 0.4s' }}
+            style={{ transition: 'stroke-dasharray 1s cubic-bezier(0.25,1,0.5,1), stroke 0.4s' }}
           />
         </svg>
         <div style={{
           position: 'absolute', inset: 0, display: 'flex',
           flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          gap: '2px',
         }}>
-          <span style={{ fontSize: '30px', fontWeight: 900, color: '#fff', lineHeight: 1, letterSpacing: '-1px' }}>
+          <span style={{ fontSize: '28px', fontWeight: 800, color: '#f5f0f5', lineHeight: 1, letterSpacing: '-1px' }}>
             {consumed}
           </span>
-          <span style={{ fontSize: '11px', color: '#444', marginTop: '3px' }}>kcal eaten</span>
+          <span style={{ fontSize: '10px', color: '#4a444a', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.8px' }}>kcal</span>
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <div>
-          <p style={{ color: '#444', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.8px' }}>Goal</p>
-          <p style={{ color: '#fff', fontSize: '20px', fontWeight: 800 }}>{goal} <span style={{ color: '#333', fontSize: '13px', fontWeight: 400 }}>kcal</span></p>
-        </div>
-        <div style={{ width: '1px', height: '1px', background: 'transparent' }} />
-        <div>
-          <p style={{ color: '#444', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.8px' }}>Remaining</p>
-          <p style={{ color: remaining === 0 ? '#ef4444' : '#fff', fontSize: '20px', fontWeight: 800 }}>
-            {remaining} <span style={{ color: '#333', fontSize: '13px', fontWeight: 400 }}>kcal</span>
-          </p>
-        </div>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <Stat label="Daily Goal" value={goal} unit="kcal" />
+        <div style={{ height: '1px', background: '#201d20' }} />
+        <Stat
+          label={overBudget ? 'Over Budget' : 'Remaining'}
+          value={overBudget ? consumed - goal : remaining}
+          unit="kcal"
+          warn={overBudget}
+        />
       </div>
+    </div>
+  )
+}
+
+function Stat({ label, value, unit, warn }) {
+  return (
+    <div>
+      <p style={{ color: '#4a444a', fontSize: '10px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '4px' }}>{label}</p>
+      <p style={{ color: warn ? '#f43f5e' : '#f5f0f5', fontSize: '19px', fontWeight: 800, letterSpacing: '-0.5px' }}>
+        {value} <span style={{ color: '#4a444a', fontSize: '12px', fontWeight: 500 }}>{unit}</span>
+      </p>
     </div>
   )
 }

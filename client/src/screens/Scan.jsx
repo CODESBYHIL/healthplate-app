@@ -1,7 +1,6 @@
 import { useState, useRef } from 'react'
 import { ArrowLeft, Camera, ImagePlus, Loader2, AlertCircle, Send, HelpCircle } from 'lucide-react'
 
-// Compress image to under 4MB before sending
 async function compressImage(file) {
   return new Promise((resolve) => {
     const img = new Image()
@@ -15,10 +14,8 @@ async function compressImage(file) {
         if (width > height) { height = Math.round((height * MAX) / width); width = MAX }
         else { width = Math.round((width * MAX) / height); height = MAX }
       }
-      canvas.width = width
-      canvas.height = height
-      const ctx = canvas.getContext('2d')
-      ctx.drawImage(img, 0, 0, width, height)
+      canvas.width = width; canvas.height = height
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height)
       canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.82)
     }
     img.src = url
@@ -29,24 +26,21 @@ export default function Scan({ onResult, onBack }) {
   const [loading, setLoading] = useState(false)
   const [preview, setPreview] = useState(null)
   const [error, setError] = useState(null)
-  const [clarification, setClarification] = useState(null) // { question, pendingData }
+  const [clarification, setClarification] = useState(null)
   const [clarificationInput, setClarificationInput] = useState('')
   const fileRef = useRef()
   const cameraRef = useRef()
 
   const analyze = async (file, extraContext = '') => {
-    setLoading(true)
-    setError(null)
+    setLoading(true); setError(null)
     try {
       const compressed = await compressImage(file)
       const form = new FormData()
       form.append('image', compressed, 'meal.jpg')
       if (extraContext) form.append('context', extraContext)
-
       const res = await fetch('/analyze', { method: 'POST', body: form })
       const data = await res.json()
       if (!res.ok || data.error) throw new Error(data.error || 'Analysis failed')
-
       if (data.needs_clarification) {
         setClarification({ question: data.clarification_question, file })
         setLoading(false)
@@ -61,8 +55,7 @@ export default function Scan({ onResult, onBack }) {
 
   const handleFile = (file) => {
     if (!file) return
-    setClarification(null)
-    setError(null)
+    setClarification(null); setError(null)
     setPreview(URL.createObjectURL(file))
     analyze(file)
   }
@@ -75,71 +68,87 @@ export default function Scan({ onResult, onBack }) {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#080808', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ display: 'flex', alignItems: 'center', padding: '52px 20px 20px', gap: '14px' }}>
+    <div style={{ minHeight: '100vh', background: '#0d0b0c', display: 'flex', flexDirection: 'column' }}>
+
+      {/* Header */}
+      <div style={{
+        display: 'flex', alignItems: 'center', padding: '52px 20px 20px', gap: '14px',
+        background: `radial-gradient(ellipse 100% 80% at 50% -20%, rgba(244,63,94,0.08) 0%, transparent 70%)`,
+      }}>
         <button onClick={onBack} style={{
-          background: '#111', border: '1px solid #222', borderRadius: '50%',
-          width: '42px', height: '42px', display: 'flex', alignItems: 'center',
+          background: '#181518', border: '1px solid #2a252a', borderRadius: '50%',
+          width: '44px', height: '44px', display: 'flex', alignItems: 'center',
           justifyContent: 'center', cursor: 'pointer', flexShrink: 0,
+          transition: 'background 0.15s',
         }}>
-          <ArrowLeft size={18} color="#fff" />
+          <ArrowLeft size={18} color="#f5f0f5" />
         </button>
         <div>
-          <h1 style={{ color: '#fff', fontSize: '20px', fontWeight: 700 }}>Scan Your Meal</h1>
-          <p style={{ color: '#555', fontSize: '13px', marginTop: '2px' }}>AI detects every item instantly</p>
+          <h1 style={{ color: '#f5f0f5', fontSize: '20px', fontWeight: 800, letterSpacing: '-0.4px' }}>Scan Your Meal</h1>
+          <p style={{ color: '#4a444a', fontSize: '13px', marginTop: '2px', fontWeight: 500 }}>30+ world cuisines recognized</p>
         </div>
       </div>
 
-      <div style={{ flex: 1, padding: '0 20px 32px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-        {/* Preview */}
+      <div style={{ flex: 1, padding: '0 20px 32px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+        {/* Preview box */}
         <div style={{
           width: '100%', aspectRatio: '1', borderRadius: '24px', overflow: 'hidden',
-          background: '#111', border: `2px ${preview ? 'solid #222' : 'dashed #1e1e1e'}`,
+          background: '#181518',
+          border: `1px solid ${preview ? '#2a252a' : '#201d20'}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           position: 'relative', flexShrink: 0,
         }}>
           {preview
             ? <img src={preview} alt="meal" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : (
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '64px', marginBottom: '16px' }}>🍽️</div>
-                <p style={{ color: '#555', fontSize: '16px', fontWeight: 600 }}>Take or upload a photo</p>
-                <p style={{ color: '#333', fontSize: '13px', marginTop: '6px' }}>30+ world cuisines recognized</p>
+              <div style={{ textAlign: 'center', padding: '20px' }}>
+                <div style={{
+                  width: '72px', height: '72px', borderRadius: '50%',
+                  background: 'rgba(244,63,94,0.08)', border: '1px solid rgba(244,63,94,0.15)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  margin: '0 auto 16px',
+                }}>
+                  <Camera size={28} color="#f43f5e" />
+                </div>
+                <p style={{ color: '#8a7f8a', fontSize: '15px', fontWeight: 700 }}>Take or upload a photo</p>
+                <p style={{ color: '#342f34', fontSize: '13px', marginTop: '5px', fontWeight: 500 }}>30+ world cuisines recognized</p>
               </div>
             )
           }
 
           {loading && (
             <div style={{
-              position: 'absolute', inset: 0, background: 'rgba(8,8,8,0.88)',
+              position: 'absolute', inset: 0,
+              background: 'rgba(13,11,12,0.9)',
               display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center', gap: '14px',
-              backdropFilter: 'blur(6px)',
+              alignItems: 'center', justifyContent: 'center', gap: '16px',
+              backdropFilter: 'blur(8px)',
             }}>
               <div style={{
-                width: '68px', height: '68px', borderRadius: '50%',
-                background: 'rgba(129,140,248,0.12)',
+                width: '72px', height: '72px', borderRadius: '50%',
+                background: 'rgba(244,63,94,0.1)', border: '1px solid rgba(244,63,94,0.2)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
-                <Loader2 size={34} color="#818cf8" style={{ animation: 'spin 0.8s linear infinite' }} />
+                <Loader2 size={32} color="#f43f5e" style={{ animation: 'spin 0.9s linear infinite' }} />
               </div>
               <div style={{ textAlign: 'center' }}>
-                <p style={{ color: '#fff', fontSize: '17px', fontWeight: 700 }}>Analyzing meal…</p>
-                <p style={{ color: '#555', fontSize: '13px', marginTop: '4px' }}>Identifying every ingredient</p>
+                <p style={{ color: '#f5f0f5', fontSize: '17px', fontWeight: 800 }}>Analyzing meal…</p>
+                <p style={{ color: '#4a444a', fontSize: '13px', marginTop: '4px', fontWeight: 500 }}>Identifying every ingredient</p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Clarification question */}
+        {/* Clarification */}
         {clarification && (
           <div style={{
-            background: 'rgba(129,140,248,0.07)', border: '1px solid rgba(129,140,248,0.2)',
+            background: '#181518', border: '1px solid rgba(244,63,94,0.2)',
             borderRadius: '18px', padding: '16px',
           }}>
             <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start', marginBottom: '12px' }}>
-              <HelpCircle size={18} color="#818cf8" style={{ flexShrink: 0, marginTop: '2px' }} />
-              <p style={{ color: '#ccc', fontSize: '15px', lineHeight: '1.5', fontWeight: 500 }}>
+              <HelpCircle size={18} color="#f43f5e" style={{ flexShrink: 0, marginTop: '2px' }} />
+              <p style={{ color: '#f5f0f5', fontSize: '14px', lineHeight: '1.55', fontWeight: 600 }}>
                 {clarification.question}
               </p>
             </div>
@@ -150,15 +159,17 @@ export default function Scan({ onResult, onBack }) {
                 onKeyDown={e => e.key === 'Enter' && submitClarification()}
                 placeholder="e.g. dal makhani, butter naan..."
                 style={{
-                  flex: 1, background: '#111', border: '1px solid #2a2a2a',
+                  flex: 1, background: '#201d20', border: '1px solid #2a252a',
                   borderRadius: '12px', padding: '12px 14px',
-                  color: '#fff', fontSize: '14px', outline: 'none',
+                  color: '#f5f0f5', fontSize: '14px', outline: 'none',
+                  fontFamily: 'inherit',
                 }}
                 autoFocus
               />
               <button onClick={submitClarification} style={{
-                background: '#818cf8', border: 'none', borderRadius: '12px',
-                width: '46px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                background: 'linear-gradient(135deg, #f43f5e, #e11d48)',
+                border: 'none', borderRadius: '12px',
+                width: '48px', display: 'flex', alignItems: 'center', justifyContent: 'center',
                 cursor: 'pointer', flexShrink: 0,
               }}>
                 <Send size={18} color="#fff" />
@@ -169,12 +180,12 @@ export default function Scan({ onResult, onBack }) {
 
         {error && (
           <div style={{
-            background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)',
+            background: 'rgba(244,63,94,0.07)', border: '1px solid rgba(244,63,94,0.2)',
             borderRadius: '14px', padding: '14px 16px',
             display: 'flex', gap: '10px', alignItems: 'flex-start',
           }}>
-            <AlertCircle size={18} color="#ef4444" style={{ flexShrink: 0, marginTop: '1px' }} />
-            <p style={{ color: '#ef4444', fontSize: '14px', lineHeight: '1.5' }}>{error}</p>
+            <AlertCircle size={18} color="#f43f5e" style={{ flexShrink: 0, marginTop: '1px' }} />
+            <p style={{ color: '#f43f5e', fontSize: '14px', lineHeight: '1.5', fontWeight: 500 }}>{error}</p>
           </div>
         )}
 
@@ -184,32 +195,35 @@ export default function Scan({ onResult, onBack }) {
           style={{ display: 'none' }} onChange={e => handleFile(e.target.files[0])} />
 
         <button onClick={() => cameraRef.current.click()} disabled={loading} style={{
-          width: '100%', background: loading ? '#141414' : '#818cf8',
-          color: loading ? '#444' : '#fff', border: 'none', borderRadius: '18px',
-          padding: '18px', fontSize: '17px', fontWeight: 700,
+          width: '100%',
+          background: loading ? '#181518' : 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)',
+          color: loading ? '#342f34' : '#fff',
+          border: loading ? '1px solid #2a252a' : 'none',
+          borderRadius: '18px', padding: '18px',
+          fontSize: '17px', fontWeight: 800, letterSpacing: '-0.2px',
           cursor: loading ? 'not-allowed' : 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-          boxShadow: loading ? 'none' : '0 8px 32px rgba(129,140,248,0.25)',
-          transition: 'all 0.2s',
+          boxShadow: loading ? 'none' : '0 8px 28px rgba(244,63,94,0.3)',
+          transition: 'all 0.2s', fontFamily: 'inherit',
         }}>
           <Camera size={22} />
           Take Photo
         </button>
 
         <button onClick={() => fileRef.current.click()} disabled={loading} style={{
-          width: '100%', background: '#0f0f0f',
-          color: loading ? '#333' : '#bbb', border: '1px solid #1e1e1e',
-          borderRadius: '18px', padding: '17px', fontSize: '16px', fontWeight: 600,
+          width: '100%', background: '#181518',
+          color: loading ? '#342f34' : '#8a7f8a',
+          border: '1px solid #2a252a',
+          borderRadius: '18px', padding: '17px',
+          fontSize: '16px', fontWeight: 700,
           cursor: loading ? 'not-allowed' : 'pointer',
           display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px',
-          transition: 'all 0.2s',
+          transition: 'all 0.2s', fontFamily: 'inherit',
         }}>
           <ImagePlus size={20} />
           Upload from Library
         </button>
       </div>
-
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

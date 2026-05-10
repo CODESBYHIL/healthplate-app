@@ -29,6 +29,7 @@ html, body, #root {
 body { max-width: 430px; margin: 0 auto; }
 
 @keyframes spin       { to { transform: rotate(360deg); } }
+@keyframes pulse      { 0%,100% { opacity: 0.3; transform: scale(0.85); } 50% { opacity: 1; transform: scale(1); } }
 @keyframes fadeUp     { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes fadeIn     { from { opacity: 0; } to { opacity: 1; } }
 @keyframes scaleIn    { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }

@@ -242,6 +242,51 @@ app.post('/analyze', upload.single('image'), async (req, res) => {
   }
 })
 
+app.post('/chat', async (req, res) => {
+  try {
+    const { messages, context } = req.body
+    if (!messages?.length) return res.status(400).json({ error: 'No messages provided' })
+
+    const contextBlock = context ? `
+## USER'S CURRENT DAY
+- Calories: ${context.calories || 0} / 1800 kcal
+- Protein: ${context.protein || 0}g / 80g
+- Carbs: ${context.carbs || 0}g / 225g
+- Fat: ${context.fat || 0}g / 60g
+- Sodium: ${context.sodium || 0}mg / 1500mg  ${context.sodium > 1200 ? '⚠️ CLOSE TO LIMIT' : ''}
+- Saturated Fat: ${context.saturated_fat || 0}g / 13g  ${context.saturated_fat > 10 ? '⚠️ CLOSE TO LIMIT' : ''}
+- Meals today: ${context.mealCount || 0}
+` : ''
+
+    const chatSystem = `You are a warm, knowledgeable nutrition coach specializing in heart health. You're embedded in an app used by a family — the primary user is a mother recovering from heart disease and clogged arteries. Her critical limits: sodium under 1500mg/day, saturated fat under 13g/day.
+
+${contextBlock}
+
+Your role:
+- Answer food and nutrition questions clearly and warmly
+- Reference her actual daily numbers when relevant ("You've had 800mg sodium already, so...")
+- Help her make smart choices for her heart condition
+- Suggest heart-friendly swaps for foods she loves
+- Keep replies concise — 2-4 sentences unless the question needs more detail
+- Never give medical advice. Focus only on nutrition and food.
+- Be warm and encouraging, not clinical or preachy.
+
+If asked about a specific food, always mention its sodium and saturated fat impact.`
+
+    const response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 512,
+      system: chatSystem,
+      messages: messages.map(m => ({ role: m.role, content: m.content })),
+    })
+
+    res.json({ reply: response.content[0].text.trim() })
+  } catch (err) {
+    console.error('Chat error:', err.message)
+    res.status(500).json({ error: err.message })
+  }
+})
+
 app.get('/health', (_, res) => res.json({ status: 'ok' }))
 
 app.use(express.static(join(__dirname, '../client/dist')))

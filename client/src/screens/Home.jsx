@@ -16,7 +16,7 @@ const RATING = {
 }
 const EMOJI = { green: '🟢', yellow: '🟡', red: '🔴' }
 
-export default function Home({ dailyTotals, todayMeals, onScan }) {
+export default function Home({ dailyTotals, todayMeals, streak = 0, onScan }) {
   const score = heartScore(dailyTotals.sodium, dailyTotals.saturated_fat)
   const scoreColor = score >= 80 ? '#22c55e' : score >= 55 ? '#f59e0b' : '#f43f5e'
   const hour = new Date().getHours()
@@ -27,18 +27,21 @@ export default function Home({ dailyTotals, todayMeals, onScan }) {
 
       {/* Header */}
       <div style={{
-        padding: '56px 20px 32px',
-        background: `radial-gradient(ellipse 120% 60% at 50% -10%, rgba(244,63,94,0.12) 0%, transparent 70%), #0d0b0c`,
+        padding: '56px 20px 28px',
+        background: `radial-gradient(ellipse 140% 70% at 50% -10%, rgba(244,63,94,0.13) 0%, transparent 65%), #0d0b0c`,
         borderBottom: '1px solid #2a252a',
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '28px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
           <div>
             <p style={{ color: '#4a444a', fontSize: '13px', fontWeight: 600, marginBottom: '4px' }}>{greeting}</p>
             <h1 style={{ color: '#f5f0f5', fontSize: '28px', fontWeight: 800, letterSpacing: '-0.8px', lineHeight: 1 }}>
               Health<span style={{ color: '#f43f5e' }}>Plate</span>
             </h1>
           </div>
-          <HeartScorePill score={score} color={scoreColor} />
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {streak > 0 && <StreakBadge streak={streak} />}
+            <HeartScorePill score={score} color={scoreColor} />
+          </div>
         </div>
 
         <CalorieRing consumed={Math.round(dailyTotals.calories)} goal={GOAL.calories} />
@@ -117,6 +120,19 @@ export default function Home({ dailyTotals, todayMeals, onScan }) {
           </div>
         )}
       </div>
+    </div>
+  )
+}
+
+function StreakBadge({ streak }) {
+  return (
+    <div style={{
+      background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)',
+      borderRadius: '100px', padding: '6px 12px',
+      display: 'flex', alignItems: 'center', gap: '5px',
+    }}>
+      <span style={{ fontSize: '13px' }}>🔥</span>
+      <span style={{ color: '#f59e0b', fontSize: '13px', fontWeight: 800 }}>{streak}</span>
     </div>
   )
 }
